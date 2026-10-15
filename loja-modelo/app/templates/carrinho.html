@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3e2723">
+
+    <title>Meu carrinho | LojaBase</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a href="{{ url_for('loja.menu') }}" class="logo">
+                LojaBase<span>.</span>
+            </a>
+
+            <button type="button" data-menu-toggle aria-label="Abrir menu">
+                ☰
+            </button>
+
+            <nav class="navegacao" data-menu>
+                <a href="{{ url_for('loja.menu') }}">Início</a>
+                <a href="{{ url_for('autenticacao.login') }}">Minha conta</a>
+                <a href="{{ url_for('autenticacao.logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container secao">
+
+        <div style="margin-bottom: 30px;">
+            <p>SUA COMPRA</p>
+            <h1>Meu carrinho</h1>
+            <p>Confira seus produtos antes de continuar para o pagamento.</p>
+        </div>
+
+        {% if erro %}
+            <div class="alerta">
+                {{ erro }}
+            </div>
+        {% endif %}
+
+        <section class="painel">
+
+            {% if itens %}
+
+                {% for item in itens %}
+                    <article class="carrinho-item">
+
+                        <div style="display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0;">
+
+                            {% if item.produto and item.produto.imagem %}
+                                <img
+                                    src="{{ url_for('static', filename='img/' ~ item.produto.imagem) }}"
+                                    alt="{{ item.produto.nome }}"
+                                    style="width: 90px; height: 90px; object-fit: cover; border-radius: 12px;"
+                                >
+                            {% endif %}
+
+                            <div>
+                                <h3>
+                                    {% if item.produto %}
+                                        {{ item.produto.nome }}
+                                    {% else %}
+                                        Produto indisponível
+                                    {% endif %}
+                                </h3>
+
+                                {% if item.produto %}
+                                    <p>
+                                        Preço unitário:
+                                        R$ {{ "%.2f"|format(item.produto.preco|float) }}
+                                    </p>
+
+                                    <p>
+                                        Quantidade: {{ item.quantidade }}
+                                    </p>
+                                {% endif %}
+                            </div>
+
+                        </div>
+
+                        {% if item.produto %}
+                            <div style="text-align: right;">
+                                <strong>
+                                    R$ {{ "%.2f"|format((item.produto.preco|float) * item.quantidade) }}
+                                </strong>
+
+                                <form
+                                    action="{{ url_for('carrinho.rmv_carrinho', id=item.id) }}"
+                                    method="POST"
+                                    style="margin-top: 12px;"
+                                    data-confirmar
+                                >
+                                    <button type="submit" class="botao perigo">
+                                        Remover
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
+
+                    </article>
+                {% endfor %}
+
+                <div class="resumo-compra" style="margin-top: 25px;">
+                    <div>
+                        <span>Total da compra</span>
+                        <h2>R$ {{ "%.2f"|format(total|float) }}</h2>
+                    </div>
+
+                    <form
+                        action="{{ url_for('pagamento.finalizar') }}"
+                        method="POST"
+                    >
+                        <button type="submit" class="botao">
+                            Continuar para pagamento
+                        </button>
+                    </form>
+                </div>
+
+            {% else %}
+
+                <div class="vazio">
+                    <h2>Seu carrinho está vazio</h2>
+                    <p>Adicione produtos à sua sacola para começar sua compra.</p>
+
+                    <a href="{{ url_for('loja.menu') }}" class="botao">
+                        Explorar produtos
+                    </a>
+                </div>
+
+            {% endif %}
+
+        </section>
+
+        {% if pedidos %}
+            <section class="painel" style="margin-top: 35px;">
+                <h2>Meus pedidos</h2>
+                <p>Acompanhe a situação dos pagamentos.</p>
+
+                <div style="overflow-x: auto; margin-top: 20px;">
+                    <table class="tabela">
+                        <thead>
+                            <tr>
+                                <th>Pedido</th>
+                                <th>Pagamento</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for pedido in pedidos %}
+                                <tr>
+                                    <td>#{{ pedido.id }}</td>
+
+                                    <td>
+                                        {% if pedido.id_pagamento %}
+                                            <a href="{{ pedido.link }}">Link de Pagamento</a>
+                                        {% else %}
+                                            Pedido Cancelado
+                                        {% endif %}
+                                    </td>
+
+                                    <td>
+                                        {% set status = pedido.status|string|upper %}
+
+                                        {% if status in ['CONFIRMED', 'RECEIVED', 'PAGO', 'CONFIRMADO'] %}
+                                            <span class="status verde">Pago</span>
+                                        {% elif status in ['PENDING', 'AWAITING_PAYMENT', 'PENDENTE'] %}
+                                            <span class="status">Pendente</span>
+                                        {% elif status in ['OVERDUE', 'VENCIDO'] %}
+                                            <span class="status vermelho">Vencido</span>
+                                        {% elif status in ['REFUNDED', 'ESTORNADO'] %}
+                                            <span class="status vermelho">Estornado</span>
+                                        {% elif status in ['CANCELLED', 'CANCELED', 'CANCELADO'] %}
+                                            <span class="status vermelho">Cancelado</span>
+                                        {% else %}
+                                            <span class="status">
+                                                {{ pedido.status or 'Não informado' }}
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        {% endif %}
+
+    </main>
+
+    <footer class="rodape">
+        <div class="container">
+            <p>LojaBase · 2026</p>
+        </div>
+    </footer>
+
+</body>
+</html>

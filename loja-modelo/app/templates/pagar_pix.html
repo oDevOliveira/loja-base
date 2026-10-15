@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3e2723">
+
+    <title>Pagamento via PIX | LojaBase</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a href="{{ url_for('loja.menu') }}" class="logo">
+                LojaBase<span>.</span>
+            </a>
+
+            <nav class="navegacao">
+                <a href="{{ url_for('loja.menu') }}">Início</a>
+                <a href="{{ url_for('carrinho.vizualizar_carrinho') }}">Meu carrinho</a>
+                <a href="{{ url_for('autenticacao.logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container secao">
+
+        <div style="text-align: center; margin-bottom: 30px;">
+            <p>FINALIZAÇÃO DA COMPRA</p>
+            <h1>Pagamento via PIX</h1>
+            <p>Escaneie o QR Code ou copie o código para pagar.</p>
+        </div>
+
+        <section class="painel" style="max-width: 600px; margin: 0 auto; text-align: center;">
+
+            <div style="margin-bottom: 25px;">
+                <div style="font-size: 42px; margin-bottom: 10px;">PIX</div>
+                <h2>Seu pagamento está quase pronto</h2>
+                <p>Abra o aplicativo do seu banco e escolha a opção PIX.</p>
+            </div>
+
+            {% if qrCode %}
+                <div style="margin: 25px 0;">
+                    <img
+                        src="{{ qrCode if qrCode.startswith('data:image/') else 'data:image/png;base64,' ~ qrCode }}"
+                        alt="QR Code para pagamento via PIX"
+                        style="display: block; width: 100%; max-width: 280px; margin: 0 auto; border-radius: 12px;"
+                    >
+                </div>
+            {% endif %}
+
+            {% if chave %}
+                <div style="text-align: left; margin-top: 25px;">
+                    <label for="codigo-pix">Código PIX copia e cola</label>
+
+                    <textarea
+                        id="codigo-pix"
+                        rows="5"
+                        readonly
+                        style="width: 100%; margin-top: 8px;"
+                    >{{ chave }}</textarea>
+
+                    <button
+                        type="button"
+                        class="botao"
+                        id="copiar-pix"
+                        style="width: 100%; margin-top: 12px;"
+                    >
+                        Copiar código PIX
+                    </button>
+
+                    <p id="mensagem-copia" role="status" style="margin-top: 10px;"></p>
+                </div>
+            {% endif %}
+
+            {% if expira_em %}
+                <p style="margin-top: 25px;">
+                    <strong>Válido até:</strong> {{ expira_em }}
+                </p>
+            {% endif %}
+
+            <div style="margin-top: 30px;">
+                <p>Após pagar, aguarde a confirmação do pagamento.</p>
+
+                <a
+                    href="{{ url_for('carrinho.vizualizar_carrinho') }}"
+                    class="botao secundario"
+                    style="display: inline-block; margin-top: 12px;"
+                >
+                    Voltar ao carrinho
+                </a>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="rodape">
+        <div class="container">
+            <p>LojaBase · 2026</p>
+        </div>
+    </footer>
+
+    <script>
+        const botaoCopiar = document.getElementById("copiar-pix");
+        const campoPix = document.getElementById("codigo-pix");
+        const mensagem = document.getElementById("mensagem-copia");
+
+        if (botaoCopiar && campoPix) {
+            botaoCopiar.addEventListener("click", async function () {
+                try {
+                    await navigator.clipboard.writeText(campoPix.value);
+                    mensagem.textContent = "Código PIX copiado.";
+                } catch (erro) {
+                    campoPix.select();
+                    campoPix.setSelectionRange(0, campoPix.value.length);
+
+                    const copiado = document.execCommand("copy");
+                    mensagem.textContent = copiado
+                        ? "Código PIX copiado."
+                        : "Não foi possível copiar automaticamente. Selecione e copie o código.";
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

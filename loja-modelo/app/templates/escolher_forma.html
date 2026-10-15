@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3e2723">
+
+    <title>Forma de pagamento | LojaBase</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a href="{{ url_for('loja.menu') }}" class="logo">
+                LojaBase<span>.</span>
+            </a>
+
+            <nav class="navegacao">
+                <a href="{{ url_for('loja.menu') }}">Início</a>
+                <a href="{{ url_for('carrinho.vizualizar_carrinho') }}">Meu carrinho</a>
+                <a href="{{ url_for('autenticacao.logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container secao">
+
+        <div style="margin-bottom: 30px;">
+            <p>FINALIZAÇÃO DA COMPRA</p>
+            <h1>Forma de pagamento</h1>
+            <p>Escolha como deseja pagar seu pedido.</p>
+        </div>
+
+        <section class="painel" style="max-width: 650px; margin: 0 auto;">
+
+            <div class="resumo-compra" style="margin-bottom: 30px;">
+                <span>Total da compra</span>
+                <h2>R$ {{ "%.2f"|format(total|float) }}</h2>
+            </div>
+
+            <form
+                action="{{ url_for('pagamento.escolher_forma',id=pedido.id) }}"
+                method="POST"
+                class="formulario"
+            >
+
+                <fieldset style="border: 0; padding: 0; margin: 0;">
+                    <legend style="font-weight: 700; margin-bottom: 18px;">
+                        Selecione uma opção
+                    </legend>                    
+
+                    <label class="painel" style="display: flex; align-items: center; gap: 15px; cursor: pointer; margin-bottom: 20px;">
+                        <input
+                            type="radio"
+                            name="metodo"
+                            value="BOLETO"
+                            required
+                        >
+
+                        <span>
+                            <strong> PIX | CRÉDITO | DÉBITO </strong>
+                            <br>
+                            <small>Pague usando o boleto gerado para seu pedido.</small>
+                        </span>
+                    </label>
+                </fieldset>
+
+                <button type="submit" class="botao" style="width: 100%;">
+                    Continuar para pagamento
+                </button>
+
+            </form>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="{{ url_for('carrinho.vizualizar_carrinho') }}">
+                    Voltar ao carrinho
+                </a>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer class="rodape">
+        <div class="container">
+            <p>LojaBase · 2026</p>
+        </div>
+    </footer>
+
+</body>
+</html>

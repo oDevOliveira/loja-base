@@ -1,0 +1,112 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#faf7f2">
+    <title>{{ produto.nome }} | Minha Loja</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a href="{{ url_for('loja.menu') }}" class="logo">Minha Loja</a>
+
+            <button type="button" data-menu-toggle
+                    aria-expanded="false" aria-label="Abrir menu">
+                ☰
+            </button>
+
+            <nav data-menu>
+                <a href="{{ url_for('loja.menu') }}">Início</a>
+                <a href="{{ url_for('carrinho.vizualizar_carrinho') }}">Meu carrinho</a>
+                <a href="{{ url_for('autenticacao.login') }}">Entrar</a>
+                <a href="{{ url_for('autenticacao.logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container secao">
+        <p>
+            <a href="{{ url_for('loja.menu') }}">Início</a>
+            /
+            <a href="{{ url_for('catalogo.categoria', categoria=produto.categoria) }}">
+                {{ produto.categoria }}
+            </a>
+            / {{ produto.nome }}
+        </p>
+
+        <section class="hero">
+            <div>
+                {% if produto.imagem %}
+                    <img
+                        src="{{ url_for('static', filename='img/' ~ produto.imagem) }}"
+                        alt="{{ produto.nome }}"
+                    >
+                {% else %}
+                    <div class="vazio">
+                        <p>Imagem indisponível</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div>
+                <p class="texto-suave">{{ produto.categoria }}</p>
+                <h1>{{ produto.nome }}</h1>
+
+                <p class="preco">
+                    R$ {{ "%.2f"|format(produto.preco|float) }}
+                </p>
+
+                {% if produto.estoque > 0 %}
+                    <p class="verde">Disponível para compra</p>
+                    <p>{{ produto.estoque }} unidade(s) em estoque.</p>
+
+                    <form
+                        action="{{ url_for('carrinho.add_carrinho', id=produto.id) }}"
+                        method="GET"
+                    >
+                        <label for="quantidade">Quantidade</label>
+                        <input
+                            type="number"
+                            id="quantidade"
+                            name="quantidade"
+                            data-quantidade
+                            min="1"
+                            max="{{ produto.estoque }}"
+                            value="1"
+                            required
+                        >
+
+                        <button type="submit" class="botao-dourado">
+                            Adicionar ao carrinho
+                        </button>
+                    </form>
+                {% else %}
+                    <p class="vermelho">Produto indisponível no momento.</p>
+                    <button type="button" disabled>Indisponível</button>
+                {% endif %}
+
+                <div style="margin-top:20px;">
+                    <a href="{{ url_for('loja.menu') }}"
+                       class="botao botao-secundario">
+                        Continuar comprando
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <div class="container">
+            <a href="{{ url_for('loja.menu') }}" class="logo">Minha Loja</a>
+            <p>Qualidade, praticidade e confiança.</p>
+            <p>&copy; 2026 Minha Loja. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

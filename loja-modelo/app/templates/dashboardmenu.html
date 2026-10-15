@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo | LojaBase</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a href="{{ url_for('loja.menu') }}" class="logo">
+                LojaBase<span>.</span>
+            </a>
+
+            <button type="button" data-menu-toggle aria-label="Abrir menu">
+                ☰
+            </button>
+
+            <nav class="navegacao" data-menu>
+                <a href="{{ url_for('loja.menu') }}">Ver loja</a>
+                <a href="{{ url_for('dashboard.addproduto') }}">Adicionar produto</a>
+                <a href="{{ url_for('dashboard.ver_pedidos') }}">Pedidos</a>
+                <a href="{{ url_for('autenticacao.logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container secao">
+
+        <div>
+            <p>ADMINISTRAÇÃO</p>
+            <h1>Painel administrativo</h1>
+            <p>Gerencie os produtos da sua loja.</p>
+        </div>
+
+        <section class="grade-produtos" style="margin: 30px 0;">
+
+            <div class="painel">
+                <p>Produtos cadastrados</p>
+                <h2>{{ produtos|length }}</h2>
+            </div>
+
+            <div class="painel">
+                <p>Unidades em estoque</p>
+                <h2>{{ produtos|sum(attribute='estoque') }}</h2>
+            </div>
+
+        </section>
+
+        <section class="painel">
+
+            <div class="cabecalho-conteudo">
+                <h2>Seus produtos</h2>
+
+                <a href="{{ url_for('dashboard.addproduto') }}" class="botao">
+                    + Novo produto
+                </a>
+            </div>
+
+            {% if produtos %}
+
+            <div style="overflow-x: auto;">
+                <table class="tabela">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Categoria</th>
+                            <th>Preço</th>
+                            <th>Estoque</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for produto in produtos %}
+                        <tr>
+                            <td>
+                                {% if produto.imagem %}
+                                <img
+                                    src="{{ url_for('static', filename='img/' ~ produto.imagem) }}"
+                                    alt="{{ produto.nome }}"
+                                    style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;"
+                                >
+                                {% endif %}
+
+                                {{ produto.nome }}
+                            </td>
+
+                            <td>{{ produto.categoria }}</td>
+
+                            <td>
+                                R$ {{ "%.2f"|format(produto.preco|float) }}
+                            </td>
+
+                            <td>
+                                {% if produto.estoque > 0 %}
+                                    <span class="status verde">
+                                        {{ produto.estoque }} unidades
+                                    </span>
+                                {% else %}
+                                    <span class="status vermelho">
+                                        Sem estoque
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <td>
+                                <a
+                                    href="{{ url_for('dashboard.editproduto', id=produto.id) }}"
+                                    class="botao secundario"
+                                >
+                                    Editar
+                                </a>
+
+                                <form
+                                    action="{{ url_for('dashboard.remover_produto', id=produto.id) }}"
+                                    method="POST"
+                                    data-confirmar
+                                >
+                                    <button type="submit" class="botao perigo">
+                                        Excluir
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+
+            <div class="vazio">
+                <h3>Nenhum produto cadastrado</h3>
+                <p>Adicione seu primeiro produto para começar.</p>
+
+                <a href="{{ url_for('dashboard.addproduto') }}" class="botao">
+                    Cadastrar produto
+                </a>
+            </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+    <footer class="rodape">
+        <div class="container">
+            <p>LojaBase · 2026</p>
+        </div>
+    </footer>
+
+</body>
+</html>

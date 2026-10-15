@@ -1,0 +1,70 @@
+<!-- app/templates/erro.html -->
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3e2723">
+
+    <title>Ocorreu um erro | LojaBase</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a href="{{ url_for('loja.menu') }}" class="logo">
+                LojaBase<span>.</span>
+            </a>
+
+            <nav class="navegacao">
+                <a href="{{ url_for('loja.menu') }}">Início</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container secao">
+        <section class="painel" style="max-width: 650px; margin: 50px auto; text-align: center;">
+
+            <div style="font-size: 60px; margin-bottom: 15px;">
+                !
+            </div>
+
+            <h1>Ops! Algo deu errado.</h1>
+
+            <p style="margin: 20px 0;">
+                Não foi possível concluir sua solicitação.
+                Tente novamente ou volte para a página inicial.
+            </p>
+
+            {% if erro %}
+                <details style="text-align: left; margin: 25px 0;">
+                    <summary style="cursor: pointer;">
+                        Ver detalhes técnicos
+                    </summary>
+
+                    <pre style="white-space: pre-wrap; overflow-wrap: anywhere; margin-top: 15px;">{{ erro }}</pre>
+                </details>
+            {% endif %}
+
+            <a href="{{ url_for('loja.menu') }}" class="botao">
+                Voltar à página inicial
+            </a>
+
+            <button type="button" class="botao secundario" onclick="history.back()">
+                Voltar à página anterior
+            </button>
+
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <div class="container">
+            <p>LojaBase · 2026</p>
+        </div>
+    </footer>
+
+</body>
+</html>

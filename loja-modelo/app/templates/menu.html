@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#faf7f2">
+    <title>Minha Loja</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+
+    <header class="cabecalho">
+        <div class="container cabecalho-conteudo">
+            <a href="{{ url_for('loja.menu') }}" class="logo">Minha Loja</a>
+
+            <button type="button" data-menu-toggle aria-expanded="false"
+                    aria-label="Abrir menu">
+                ☰
+            </button>
+
+            <nav data-menu>
+                <a href="{{ url_for('loja.menu') }}">Início</a>
+
+                {% for categoria in categorias %}
+                    <a href="{{ url_for('catalogo.categoria', categoria=categoria[0]) }}">
+                        {{ categoria[0] }}
+                    </a>
+                {% endfor %}
+
+                <a href="{{ url_for('carrinho.vizualizar_carrinho') }}">
+                    Meu carrinho
+                </a>
+
+                <a href="{{ url_for('autenticacao.login') }}">Entrar</a>
+                <a href="{{ url_for('autenticacao.logout') }}">Sair</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="container hero">
+            <div>
+                <p class="texto-suave">QUALIDADE EM CADA DETALHE</p>
+                <h1>Encontre seus produtos favoritos.</h1>
+                <p>
+                    Explore nosso catálogo e descubra produtos selecionados
+                    para você.
+                </p>
+
+                <div class="hero-acoes">
+                    <a href="#produtos" class="botao botao-dourado">
+                        Explorar produtos
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <img
+                    src="{{ url_for('static', filename='img/banner.jpeg') }}"
+                    alt="Destaques da loja"
+                    onerror="this.style.display='none'"
+                >
+            </div>
+        </section>
+
+        <section class="container secao">
+            <div class="texto-centro">
+                <h2>Navegue por categorias</h2>
+                <p>Encontre rapidamente o que procura.</p>
+            </div>
+
+            <div class="linha">
+                {% for categoria in categorias %}
+                    <a
+                        href="{{ url_for('catalogo.categoria', categoria=categoria[0]) }}"
+                        class="botao botao-secundario"
+                    >
+                        {{ categoria[0] }}
+                    </a>
+                {% else %}
+                    <p>Nenhuma categoria cadastrada.</p>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="container secao" id="produtos">
+            <div class="espaco-entre">
+                <div>
+                    <h2>Nossos produtos</h2>
+                    <p>Confira os produtos disponíveis na loja.</p>
+                </div>
+
+                <form method="POST" action="{{ url_for('loja.menu') }}"
+                      style="display:flex; gap:10px; max-width:420px; width:100%;">
+                    <input
+                        type="search"
+                        name="pesquisa"
+                        placeholder="Buscar produto..."
+                        aria-label="Buscar produto"
+                        required
+                    >
+                    <button type="submit">Buscar</button>
+                </form>
+            </div>
+
+            <div class="grade-produtos">
+                {% for produto in produtos %}
+                    <article class="produto">
+                        {% if produto.imagem %}
+                            <img
+                                src="{{ url_for('static', filename='img/' ~ produto.imagem) }}"
+                                alt="{{ produto.nome }}"
+                                loading="lazy"
+                            >
+                        {% else %}
+                            <div class="vazio">
+                                <p>Imagem indisponível</p>
+                            </div>
+                        {% endif %}
+
+                        <div class="produto-conteudo">
+                            <p class="texto-suave">
+                                {{ produto.categoria }}
+                            </p>
+
+                            <h3>{{ produto.nome }}</h3>
+
+                            <p class="preco">
+                                R$ {{ "%.2f"|format(produto.preco|float) }}
+                            </p>
+
+                            {% if produto.estoque > 0 %}
+                                <p class="texto-suave">Disponível</p>
+
+                                <a
+                                    href="{{ url_for('catalogo.produto', id=produto.id) }}"
+                                    class="botao"
+                                >
+                                    Ver produto
+                                </a>
+                            {% else %}
+                                <p class="vermelho">Produto indisponível</p>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% else %}
+                    <div class="vazio">
+                        <h3>Nenhum produto encontrado</h3>
+                        <p>Tente pesquisar por outro nome.</p>
+                        <a href="{{ url_for('loja.menu') }}" class="botao">
+                            Ver todos os produtos
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <footer class="rodape">
+        <div class="container">
+            <a href="{{ url_for('loja.menu') }}" class="logo">Minha Loja</a>
+            <p>Qualidade, praticidade e confiança.</p>
+            <p>&copy; {{ now().year if now is defined else 2026 }} Minha Loja. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
